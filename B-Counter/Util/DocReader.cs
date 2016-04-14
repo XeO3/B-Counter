@@ -1,14 +1,12 @@
 ﻿using System.Linq;
 using System.Text;
-using Spire.Xls;
 using Spire.Doc;
 //using Spire.Pdf;
-using System.IO;
 using System;
 using System.Windows;
-using System.Collections.Generic;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using Spire.Xls;
 
 namespace B_Counter.Util
 {
@@ -30,7 +28,7 @@ namespace B_Counter.Util
                 {
                     document.LoadFromFile(pFilePath);
                 }
-                catch(Exception err)
+                catch (Exception err)
                 {
                     MessageBox.Show(err.ToString());
                     return string.Empty;
@@ -38,6 +36,7 @@ namespace B_Counter.Util
                 plainText.Append(document.GetText());
                 document.Close();
             }
+        
             else if (ext.Equals(".XLSX") || ext.Equals(".XLS"))
             {
                 //Create Excel workbook
@@ -58,6 +57,7 @@ namespace B_Counter.Util
                 {
                     string tmpfilename = "tempSheet" + i.ToString() + ".txt";
                     Worksheet sheet = workbook.Worksheets[i];
+
 
                     if (!sheet.IsEmpty)
                     {

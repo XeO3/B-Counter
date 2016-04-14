@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:B_Counter"
         mc:Ignorable="d"
-        Title="B-Counter" Height="500" Width="700" Drop="Window_Drop" DragOver="Window_DragOver" DragLeave="Window_DragLeave" ResizeMode="CanResizeWithGrip">
+        Title="B-Counter" Height="500" Width="800" Drop="Window_Drop" DragOver="Window_DragOver" DragLeave="Window_DragLeave" ResizeMode="CanResizeWithGrip">
     <Grid Margin="5" AllowDrop="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="0" />
@@ -24,48 +24,51 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="8*" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="205" />
             </Grid.ColumnDefinitions>
             <DataGrid x:Name="dataGrid_result" 
                   ItemsSource="{Binding Path=FileInfoList, Mode=OneWay}"
                   AutoGenerateColumns="False"
-                  Margin="5" IsReadOnly="True" SelectionUnit="CellOrRowHeader" LoadingRow="dataGrid_result_LoadingRow" HorizontalGridLinesBrush="#FFE4E4E4" VerticalGridLinesBrush="#FFF7F7F7" RowHeight="22">
+                  Margin="5" IsReadOnly="True" LoadingRow="dataGrid_result_LoadingRow" HorizontalGridLinesBrush="#FFE4E4E4" VerticalGridLinesBrush="#FFF7F7F7" RowHeight="22" SelectedCellsChanged="dataGrid_result_SelectedCellsChanged" PreviewKeyDown="dataGrid_result_PreviewKeyDown" >
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Path=FileName, Mode=OneWay}"   Header="FileName"/>
-                    <DataGridTextColumn Binding="{Binding Path=FileSize, Mode=OneWay, StringFormat={}{0:#,0} }" Header="Size">
+                    <DataGridTextColumn Binding="{Binding Path=FileName, Mode=OneWay}"   Header="ファイル名"/>
+                    <DataGridTextColumn Binding="{Binding Path=FileSize, Mode=OneWay, StringFormat={}{0:#,0} }" Header="サイズ">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Path=Text.Length, Mode=OneWay, StringFormat={}{0:#,0} }" Header="Count">
+                    <DataGridTextColumn Binding="{Binding Path=Text.Length, Mode=OneWay, StringFormat={}{0:#,0} }" Header="文字数(空白込)">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Path=Text.Words, Mode=OneWay, StringFormat={}{0:#,0} }" Header="Words">
+                    
+                    <DataGridTextColumn Binding="{Binding Path=Text.Characters, Mode=OneWay, StringFormat={}{0:#,0} }" Header="文字数(空白抜)">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Path=Text.Characters, Mode=OneWay, StringFormat={}{0:#,0} }" Header="Characters">
+                    <DataGridTextColumn Binding="{Binding Path=Text.Words, Mode=OneWay, StringFormat={}{0:#,0} }" Header="ワード数">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding Path=Text.FullBytes, Mode=OneWay, StringFormat={}{0:#,0} }" Header="FullBytes">
+                    <DataGridTextColumn Binding="{Binding Path=Text.FullBytes, Mode=OneWay, StringFormat={}{0:#,0} }" Header="全角文字数">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="HorizontalAlignment" Value="Right" />
                             </Style>
                         </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Path=Text.InnerText, Mode=OneWay}" Header="テキスト" Visibility="Collapsed">
                     </DataGridTextColumn>
                 </DataGrid.Columns>
                 <DataGrid.CellStyle>
@@ -84,32 +87,44 @@
                 </DataGrid.CellStyle>
             </DataGrid>
             <StackPanel Grid.Column="1">
-                <GroupBox Header="Overall">
+                <GroupBox Header="総計">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">Files</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalCount, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2" Visibility="Collapsed">
+                            <Label Width="80" HorizontalContentAlignment="Right">ファイル数</Label>
+                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalCount, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right" TextChanged="TextBox_TextChanged"></TextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">Size</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalSize, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                            <Label Width="90" HorizontalContentAlignment="Right">ファイル数</Label>
+                            <RichTextBox x:Name="rich_TotalCount" Width="100" IsReadOnly="True" ></RichTextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">Count</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalLengh, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                            <Label Width="90" HorizontalContentAlignment="Right">サイズ</Label>
+                            <RichTextBox x:Name="rich_TotalSize" Width="100" IsReadOnly="True" ></RichTextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">Words</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalWords, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                            <Label Width="90" HorizontalContentAlignment="Right">文字数(空白込)</Label>
+                            <RichTextBox x:Name="rich_TotalLengh" Width="100" IsReadOnly="True" ></RichTextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">Characters</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalCharacter, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                            <Label Width="90" HorizontalContentAlignment="Right">文字数(空白抜)</Label>
+                            <RichTextBox x:Name="rich_TotalCharacter" Width="100" IsReadOnly="True" ></RichTextBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Label Width="80" HorizontalContentAlignment="Right">FullBytes</Label>
-                            <TextBox Width="100" IsReadOnly="True" Text="{Binding Path=TotalFullBytes, Mode=OneWay, StringFormat={}{0:#,0}}" TextAlignment="Right"></TextBox>
+                            <Label Width="90" HorizontalContentAlignment="Right">ワード数</Label>
+                            <RichTextBox x:Name="rich_TotalWords" Width="100" IsReadOnly="True" ></RichTextBox>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                            <Label Width="90" HorizontalContentAlignment="Right">全角文字数</Label>
+                            <RichTextBox x:Name="rich_TotalFullBytes" Width="100" IsReadOnly="True" ></RichTextBox>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox x:Name="GroupBox_Selected" Header="テキスト" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBox x:Name="TextBox_Text" Height="100" IsReadOnly="True" HorizontalScrollBarVisibility="Auto"  VerticalScrollBarVisibility="Auto">
+                        </TextBox>
+                        <Button x:Name="button" Content="Copy To Clipboard" Click="button_CopyToClipBoard_Click"/>
+
                     </StackPanel>
                 </GroupBox>
             </StackPanel>

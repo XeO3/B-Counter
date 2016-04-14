@@ -1,4 +1,5 @@
-﻿using B_Counter.ViewModel;
+﻿using B_Counter.Model;
+using B_Counter.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,7 +67,72 @@ namespace B_Counter
 
         private void dataGrid_result_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString()+ " ";
+        }
+
+        private void dataGrid_result_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            if (dataGrid_result.SelectedIndex > -1)
+            {
+                TextBox_Text.Text = ((FileDetail)dataGrid_result.SelectedItem).Text.InnerText;
+                GroupBox_Selected.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                GroupBox_Selected.Visibility = Visibility.Collapsed;
+                TextBox_Text.Text = string.Empty;
+            }
+
+        }
+
+        private void button_CopyToClipBoard_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(TextBox_Text.Text);
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ConvertFlowDocument(ref rich_TotalCount, main.TotalCount.ToString("#,0"));
+            ConvertFlowDocument(ref rich_TotalSize, main.TotalSize.ToString("#,0"));
+            ConvertFlowDocument(ref rich_TotalLengh, main.TotalLengh.ToString("#,0"));
+            ConvertFlowDocument(ref rich_TotalCharacter, main.TotalCharacter.ToString("#,0"));
+            ConvertFlowDocument(ref rich_TotalWords, main.TotalWords.ToString("#,0"));
+            ConvertFlowDocument(ref rich_TotalFullBytes, main.TotalFullBytes.ToString("#,0"));
+        }
+
+        private void ConvertFlowDocument(ref RichTextBox rtb, string text)
+        {
+            FlowDocument myFlowDoc = new FlowDocument();
+            Paragraph pa = new Paragraph();
+            pa.FontSize = 15;
+            pa.TextAlignment = TextAlignment.Right;
+            
+            foreach (char ch in text)
+            {
+
+                Run run = new Run(ch.ToString());
+
+                if (ch.Equals('9'))
+                {
+                    run.Foreground = Brushes.Red;
+                    run.FontWeight = FontWeights.Bold;
+                    run.FontSize = 16;
+                }
+                pa.Inlines.Add(run);
+            }
+
+            myFlowDoc.Blocks.Add(pa);
+            rtb.Document = myFlowDoc;
+        }
+
+      
+
+        private void dataGrid_result_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key.Equals(Key.Delete))
+            {
+                main.DeleteFileInfo(dataGrid_result.SelectedIndex);
+            }
         }
     }
 }

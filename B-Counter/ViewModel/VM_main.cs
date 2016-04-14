@@ -123,7 +123,7 @@ namespace B_Counter.ViewModel
                     continue;
                 }
 
-                this.FileInfoList.Add(new FileDetail(file));
+                this.FileInfoList.Add(newFile);
 
                 OnPropertyChanged("TotalCount");
                 OnPropertyChanged("TotalSize");
@@ -135,6 +135,21 @@ namespace B_Counter.ViewModel
             }
 
         }
+
+        public void DeleteFileInfo(int index)
+        {
+            if (index > -1 &&  FileInfoList.Count > index)
+            {
+                this.FileInfoList.RemoveAt(index);
+            }
+            OnPropertyChanged("TotalCount");
+            OnPropertyChanged("TotalSize");
+            OnPropertyChanged("TotalLengh");
+            OnPropertyChanged("TotalWords");
+            OnPropertyChanged("TotalCharacter");
+            OnPropertyChanged("TotalFullBytes");
+        }
+
 
         private ObservableCollection<FileDetail> _fileInfoList;
 
