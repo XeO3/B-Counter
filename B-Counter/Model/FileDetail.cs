@@ -91,11 +91,27 @@ namespace B_Counter.Model
             }
         }
 
+        /// <summary>選択フラー具</summary>
+        public bool IsSelcted
+        {
+            get
+            {
+                return _IsSelcted;
+            }
+
+            set
+            {
+                _IsSelcted = value;
+            }
+        }
+
         private string _fileName;
         private long _fileSize;
         private string _Extention;
         private string _filePath;
         private TextInfo _text;
+        private bool _IsSelcted;
+
 
         public FileDetail()
         {

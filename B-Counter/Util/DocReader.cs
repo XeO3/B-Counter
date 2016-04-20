@@ -7,6 +7,7 @@ using System.Windows;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using Spire.Xls;
+using System.IO;
 
 namespace B_Counter.Util
 {
@@ -27,79 +28,53 @@ namespace B_Counter.Util
                 try
                 {
                     document.LoadFromFile(pFilePath);
+                    plainText.Append(document.GetText());
+                    document.Close();
                 }
                 catch (Exception err)
                 {
+                    MessageBox.Show(string.Format("{0}を開く際にエラーが発生しました。", pFilePath));
+#if DEBUG
                     MessageBox.Show(err.ToString());
-                    return string.Empty;
+#endif
+                    document.Close();
+                    return null;
                 }
-                plainText.Append(document.GetText());
-                document.Close();
             }
-        
+
             else if (ext.Equals(".XLSX") || ext.Equals(".XLS"))
             {
                 //Create Excel workbook
-                Workbook workbook = new Workbook();
 
-                //load a workbook
-                try
+                using (Workbook workbook = new Workbook())
                 {
-                    workbook.LoadFromFile(pFilePath);
-                }
-                catch (Exception err)
-                {
-                    MessageBox.Show(err.ToString());
-                    return string.Empty;
-                }
-
-                for (int i = 0; i < workbook.Worksheets.Count; i++)
-                {
-                    string tmpfilename = "tempSheet" + i.ToString() + ".txt";
-                    Worksheet sheet = workbook.Worksheets[i];
-
-
-                    if (!sheet.IsEmpty)
+                    //load a workbook
+                    try
                     {
-                        plainText.Append("--[" + sheet.Name + "]--\r\n");
-                        StringBuilder sb = new StringBuilder();
-                        //全セルのテキストを記録
-                        for (int row = 0; row < sheet.Rows.Count(); row++)
+                        workbook.LoadFromFile(pFilePath);
+
+                        foreach (Worksheet sheet in workbook.Worksheets)
                         {
-                            for (int col = 0; col < sheet.Columns.Count(); col++)
-                            {
-                                plainText.Append(sheet.GetText(row + 1, col + 1) + ", ");
-                            }
-                            plainText.AppendLine();
+                            sheet.SaveToFile(sheet.Name + ".txt", "\t", Encoding.UTF8);
+                            plainText.AppendLine(GetDocumentPlainText(sheet.Name + ".txt"));
                         }
-                        plainText.AppendLine();
+
+                        workbook.Dispose();
                     }
+                    catch (Exception err)
+                    {
+                        MessageBox.Show(string.Format("{0}を開く際にエラーが発生しました。", pFilePath));
+#if DEBUG
+                        MessageBox.Show(err.ToString());
+#endif
+                        workbook.Dispose();
+                        return null;
+                    }
+
                 }
-                workbook.Dispose();
             }
             else if (ext.Equals(".PDF"))
             {
-                ////Create word document
-                //PdfDocument doc = new PdfDocument();
-
-                ////load a document
-                //try
-                //{
-                //    doc.LoadFromFile(pFilePath);
-                //}
-                //catch (Exception err)
-                //{
-                //    MessageBox.Show(err.ToString());
-                //    return string.Empty;
-                //}
-
-                //foreach (PdfPageBase page in doc.Pages)
-                //{
-                //    plainText.Append(page.ExtractText());
-                //}
-                //doc.Close();
-
-
                 try
                 {
                     var reader = new PdfReader(pFilePath);
@@ -110,14 +85,31 @@ namespace B_Counter.Util
                         plainText.Append(PdfTextExtractor.GetTextFromPage(reader, currentPageIndex));
                     }
                 }
-                catch (Exception exception)
+                catch (Exception err)
                 {
-                    Console.WriteLine(exception.Message);
+
+                    MessageBox.Show(string.Format("{0}を開く際にエラーが発生しました。", pFilePath));
+#if DEBUG
+                    MessageBox.Show(err.ToString());
+#endif
+                    return null;
                 }
             }
             else if (ext.Equals(".TXT") || ext.Equals(".CSV"))
             {
-                plainText.Append(System.IO.File.ReadAllText(pFilePath));
+                try
+                {
+                    plainText.Append(System.IO.File.ReadAllText(pFilePath));
+                }
+                catch (Exception err)
+                {
+
+                    MessageBox.Show(string.Format("{0}を開く際にエラーが発生しました。", pFilePath));
+#if DEBUG
+                    MessageBox.Show(err.ToString());
+#endif
+                    return null;
+                }
             }
             else
             {
@@ -125,7 +117,7 @@ namespace B_Counter.Util
                 return null;
             }
 
-            return plainText.ToString();
+            return plainText.ToString().Trim();
         }
     }
 }

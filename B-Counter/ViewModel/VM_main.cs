@@ -118,7 +118,7 @@ namespace B_Counter.ViewModel
 
                 //파일 추가
                 FileDetail newFile = new FileDetail(file);
-                if (newFile.Text.Length < 0)
+                if (newFile == null || newFile.Text.Length < 0)
                 {
                     continue;
                 }
@@ -150,6 +150,21 @@ namespace B_Counter.ViewModel
             OnPropertyChanged("TotalFullBytes");
         }
 
+        public void DeleteFileInfo(object item)
+        {
+            FileDetail file = item as FileDetail;
+                
+            if (item != null)
+            {
+                FileInfoList.Remove(file);
+            }
+            OnPropertyChanged("TotalCount");
+            OnPropertyChanged("TotalSize");
+            OnPropertyChanged("TotalLengh");
+            OnPropertyChanged("TotalWords");
+            OnPropertyChanged("TotalCharacter");
+            OnPropertyChanged("TotalFullBytes");
+        }
 
         private ObservableCollection<FileDetail> _fileInfoList;
 

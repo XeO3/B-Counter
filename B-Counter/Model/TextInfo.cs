@@ -33,7 +33,7 @@ namespace B_Counter.Model
                     this._length = value.Length;
                     this._words = CountWords(value);
                     this._characters = CountCharactors(value);
-                    this._fullBytes = CountZenkaku(value);
+                    this._fullBytes = CountFullbyte(value);
                 }
             }
         }
@@ -152,9 +152,9 @@ namespace B_Counter.Model
             return charCount;
         }
 
-        public int CountZenkaku(string pText)
+        public int CountFullbyte(string pText)
         {
-            pText = Regex.Replace(pText, @"[^\x01-\x7E]", "");
+            pText = Regex.Replace(pText, @"[\x01-\x7E]", "");
             return CountCharactors(pText);
         }
         #endregion

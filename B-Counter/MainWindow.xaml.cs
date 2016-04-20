@@ -31,15 +31,6 @@ namespace B_Counter
             this.DataContext = main;
         }
 
-        private void button_import_Click(object sender, RoutedEventArgs e)
-        {
-            if (1 == 1)
-            {
-
-            }
-        }
-
-
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
@@ -67,20 +58,30 @@ namespace B_Counter
 
         private void dataGrid_result_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            e.Row.Header = (e.Row.GetIndex() + 1).ToString()+ " ";
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString() + " ";
         }
 
         private void dataGrid_result_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            if (dataGrid_result.SelectedIndex > -1)
+            StringBuilder sb = new StringBuilder();
+
+            foreach (DataGridCellInfo cell in e.AddedCells)
             {
-                TextBox_Text.Text = ((FileDetail)dataGrid_result.SelectedItem).Text.InnerText;
-                GroupBox_Selected.Visibility = Visibility.Visible;
+                if (cell.Item.GetType().Equals(typeof(FileDetail)))
+                {
+                    sb.AppendLine(((FileDetail)cell.Item).Text.InnerText);
+                }
+                break;
+            }
+
+            TextBox_Text.Text = sb.ToString();
+            if (string.IsNullOrWhiteSpace(TextBox_Text.Text))
+            {
+                GroupBox_Selected.Visibility = Visibility.Collapsed;
             }
             else
             {
-                GroupBox_Selected.Visibility = Visibility.Collapsed;
-                TextBox_Text.Text = string.Empty;
+                GroupBox_Selected.Visibility = Visibility.Visible;
             }
 
         }
@@ -106,7 +107,7 @@ namespace B_Counter
             Paragraph pa = new Paragraph();
             pa.FontSize = 15;
             pa.TextAlignment = TextAlignment.Right;
-            
+
             foreach (char ch in text)
             {
 
@@ -125,14 +126,57 @@ namespace B_Counter
             rtb.Document = myFlowDoc;
         }
 
-      
 
+        /// <summary> ITEM削除
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void dataGrid_result_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key.Equals(Key.Delete))
             {
-                main.DeleteFileInfo(dataGrid_result.SelectedIndex);
+
+                //main.DeleteFileInfo(dataGrid_result.CurrentCell.Item);
+                foreach (DataGridCellInfo cell in dataGrid_result.SelectedCells)
+                {
+                 //   var currentRowIndex = dataGrid_result.Items.IndexOf(cell.Item);
+
+
+
+                    main.DeleteFileInfo(cell.Item);
+                }
             }
+        }
+
+
+        /// <summary>datagrid의 체크박스 선택시 선택한 리스트 표시
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnChecked(object sender, RoutedEventArgs e)
+        {
+
+         
+            var selectedlist = from list in main.FileInfoList
+                               where list.IsSelcted
+                               select new
+                               {
+                                   list.FileSize,
+                                   list.Text.Characters,
+                                   list.Text.FullBytes,
+                                   list.Text.Length,
+                                   list.Text.Words,
+                               };
+
+            int total = (int)selectedlist.Select(u => (u.FileSize < 0) ? 0 : u.FileSize).Sum();
+
+            ConvertFlowDocument(ref rich_SelectedCount, selectedlist.Count().ToString("#,0"));
+            ConvertFlowDocument(ref rich_SelectedSize, selectedlist.Select(u => (u.FileSize < 0) ? 0 : u.FileSize).Sum().ToString("#,0"));
+            ConvertFlowDocument(ref rich_SelectedLengh, selectedlist.Select(u => (u.Length < 0) ? 0 : u.Length).Sum().ToString("#,0"));
+            ConvertFlowDocument(ref rich_SelectedCharacter, selectedlist.Select(u => (u.Characters < 0) ? 0 : u.Characters).Sum().ToString("#,0"));
+            ConvertFlowDocument(ref rich_SelectedWords, selectedlist.Select(u => (u.Words < 0) ? 0 : u.Words).Sum().ToString("#,0"));
+            ConvertFlowDocument(ref rich_SelectedFullBytes, selectedlist.Select(u => (u.FullBytes < 0) ? 0 : u.FullBytes).Sum().ToString("#,0"));
+
         }
     }
 }
